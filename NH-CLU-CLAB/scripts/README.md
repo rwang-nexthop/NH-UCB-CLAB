@@ -1,4 +1,4 @@
-# SONiC CLOS Lab Configuration Script
+# Nexthop.AI SONiC CLOS Lab Configuration Script
 
 ## Overview
 
@@ -90,27 +90,27 @@ If BGP neighbors don't establish:
 
 1. **Check interface status:**
    ```bash
-   docker exec clab-sonic-clos-leaf1 show ip interface
+   docker exec clab-nexthop-sonic-clos-leaf1 show ip interface
    ```
 
 2. **Verify BGP daemon is running:**
    ```bash
-   docker exec clab-sonic-clos-leaf1 service frr status
+   docker exec clab-nexthop-sonic-clos-leaf1 service frr status
    ```
 
 3. **Check BGP configuration:**
    ```bash
-   docker exec clab-sonic-clos-leaf1 vtysh -c "show running-config"
+   docker exec clab-nexthop-sonic-clos-leaf1 vtysh -c "show running-config"
    ```
 
 4. **View BGP neighbor details:**
    ```bash
-   docker exec clab-sonic-clos-leaf1 vtysh -c "show ip bgp neighbors"
+   docker exec clab-nexthop-sonic-clos-leaf1 vtysh -c "show ip bgp neighbors"
    ```
 
 5. **Check routing table:**
    ```bash
-   docker exec clab-sonic-clos-leaf1 vtysh -c "show ip route"
+   docker exec clab-nexthop-sonic-clos-leaf1 vtysh -c "show ip route"
    ```
 
 ## Manual Configuration
@@ -119,7 +119,7 @@ If you need to manually configure a container:
 
 ```bash
 # Enter the container
-docker exec -it clab-sonic-clos-leaf1 bash
+docker exec -it clab-nexthop-sonic-clos-leaf1 bash
 
 # Configure interface
 config interface ip add Ethernet0 10.0.1.1/31

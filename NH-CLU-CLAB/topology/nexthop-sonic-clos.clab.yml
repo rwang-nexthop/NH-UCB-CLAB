@@ -1,4 +1,4 @@
-name: sonic-clos
+name: nexthop-sonic-clos
 
 topology:
   nodes:

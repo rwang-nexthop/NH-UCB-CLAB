@@ -1,6 +1,8 @@
 # Nexthop.AI SONiC CLOS Topology Lab
 
-A containerlab-based SONiC CLOS topology with 2 spines and 2 leaves, featuring BGP routing and streaming telemetry.
+A containerlab-based SONiC CLOS topology with 2 spines and 2 leaves, featuring BGP routing with ECMP load balancing.
+
+**Powered by Nexthop.AI** - Building the most efficient AI infrastructures
 
 📋 **See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for command reference**
 
@@ -113,7 +115,7 @@ If you prefer manual control:
 
 ```bash
 cd topology
-clab deploy -t sonic-clos.clab.yml
+clab deploy -t nexthop-sonic-clos.clab.yml
 ```
 
 #### 2. Configure Interfaces and BGP
@@ -141,7 +143,7 @@ The configuration script will:
 Connect to a SONiC device:
 
 ```bash
-docker exec -it clab-sonic-clos-spine1 bash
+docker exec -it clab-nexthop-sonic-clos-spine1 bash
 ```
 
 Inside the container:
@@ -162,7 +164,7 @@ vtysh -c "show ip route"
 From host1 to host2:
 
 ```bash
-docker exec -it clab-sonic-clos-host1 ping 192.168.2.10
+docker exec -it clab-nexthop-sonic-clos-host1 ping 192.168.2.10
 ```
 
 ## 🗂️ Directory Structure
@@ -183,7 +185,7 @@ NH-CLU-CLAB/
 ├── scripts/
 │   └── configure_bgp_redistribute.sh  # BGP configuration script
 ├── topology/
-│   └── sonic-clos.clab.yml        # Containerlab topology file
+│   └── nexthop-sonic-clos.clab.yml        # Containerlab topology file
 └── README.md                      # This file
 ```
 
@@ -210,12 +212,12 @@ If BGP still doesn't establish:
 
 1. Check interface status:
    ```bash
-   docker exec clab-sonic-clos-spine1 vtysh -c "show interface brief"
+   docker exec clab-nexthop-sonic-clos-spine1 vtysh -c "show interface brief"
    ```
 
 2. Check BGP neighbors:
    ```bash
-   docker exec clab-sonic-clos-spine1 vtysh -c "show ip bgp neighbors"
+   docker exec clab-nexthop-sonic-clos-spine1 vtysh -c "show ip bgp neighbors"
    ```
 
 3. Verify IP addressing matches the topology
@@ -232,15 +234,15 @@ If hosts can't ping each other:
 
 1. Check host routes:
    ```bash
-   docker exec clab-sonic-clos-host1 ip route
+   docker exec clab-nexthop-sonic-clos-host1 ip route
    ```
 
 2. Verify default route points to data network (192.168.x.1), not mgmt (172.20.20.1)
 
 3. The configuration script automatically fixes this, but you can manually fix:
    ```bash
-   docker exec clab-sonic-clos-host1 ip route del default via 172.20.20.1 dev eth0
-   docker exec clab-sonic-clos-host1 ip route add default via 192.168.1.1 dev eth1
+   docker exec clab-nexthop-sonic-clos-host1 ip route del default via 172.20.20.1 dev eth0
+   docker exec clab-nexthop-sonic-clos-host1 ip route add default via 192.168.1.1 dev eth1
    ```
 
 ## 🧹 Cleanup
@@ -262,7 +264,7 @@ This script will:
 
 ```bash
 cd topology
-clab destroy -t sonic-clos.clab.yml --cleanup
+clab destroy -t nexthop-sonic-clos.clab.yml --cleanup
 ```
 
 ## 📚 References

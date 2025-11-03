@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-# Script to cleanly destroy the SONiC CLOS lab
+# Script to cleanly destroy the Nexthop.AI SONiC CLOS lab
 # Stops all containers, removes networks, and cleans up artifacts
 
 set -e
 
-TOPOLOGY_FILE="../topology/sonic-clos.clab.yml"
-LAB_NAME="sonic-clos"
+TOPOLOGY_FILE="../topology/nexthop-sonic-clos.clab.yml"
+LAB_NAME="nexthop-sonic-clos"
 
 echo "=========================================="
-echo "SONiC CLOS Lab - Cleanup Script"
+echo "Nexthop.AI - SONiC CLOS Lab Cleanup"
 echo "=========================================="
 echo ""
 
@@ -24,9 +24,9 @@ fi
 echo "Step 1: Destroying containerlab topology..."
 echo "--------------------------------------------"
 cd ../topology
-if clab inspect -t sonic-clos.clab.yml &>/dev/null; then
+if clab inspect -t nexthop-sonic-clos.clab.yml &>/dev/null; then
     echo "Lab is running, destroying..."
-    clab destroy -t sonic-clos.clab.yml --cleanup
+    clab destroy -t nexthop-sonic-clos.clab.yml --cleanup
     echo "✓ Lab destroyed"
 else
     echo "Lab is not running, skipping destroy"
@@ -121,9 +121,15 @@ echo "Cleanup Complete!"
 echo "=========================================="
 echo ""
 echo "To redeploy the lab, run:"
+echo "  cd scripts"
+echo "  ./deploy_lab.sh"
+echo ""
+echo "Or manually:"
 echo "  cd topology"
-echo "  clab deploy -t sonic-clos.clab.yml"
+echo "  clab deploy -t nexthop-sonic-clos.clab.yml"
 echo "  cd ../scripts"
 echo "  ./configure_bgp_docker.sh"
+echo ""
+echo "Powered by Nexthop.AI"
 echo ""
 

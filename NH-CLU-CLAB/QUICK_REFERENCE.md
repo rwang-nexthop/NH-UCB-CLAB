@@ -1,4 +1,6 @@
-# SONiC CLOS Lab - Quick Reference
+# Nexthop.AI SONiC CLOS Lab - Quick Reference
+
+**Built by Nexthop.AI** - Building the most efficient AI infrastructures
 
 ## 🚀 Deployment Commands
 
@@ -12,7 +14,7 @@ cd scripts
 ```bash
 # Deploy topology
 cd topology
-clab deploy -t sonic-clos.clab.yml
+clab deploy -t nexthop-sonic-clos.clab.yml
 
 # Configure BGP
 cd ../scripts
@@ -27,7 +29,7 @@ cd scripts
 
 # Manual cleanup
 cd topology
-clab destroy -t sonic-clos.clab.yml --cleanup
+clab destroy -t nexthop-sonic-clos.clab.yml --cleanup
 ```
 
 ## 🔍 Verification Commands
@@ -35,52 +37,52 @@ clab destroy -t sonic-clos.clab.yml --cleanup
 ### Lab Status
 ```bash
 cd topology
-clab inspect -t sonic-clos.clab.yml
+clab inspect -t nexthop-sonic-clos.clab.yml
 ```
 
 ### BGP Status
 ```bash
 # Check BGP summary
-docker exec clab-sonic-clos-spine1 vtysh -c "show ip bgp summary"
-docker exec clab-sonic-clos-leaf1 vtysh -c "show ip bgp summary"
+docker exec clab-nexthop-sonic-clos-spine1 vtysh -c "show ip bgp summary"
+docker exec clab-nexthop-sonic-clos-leaf1 vtysh -c "show ip bgp summary"
 
 # Check BGP routes
-docker exec clab-sonic-clos-leaf1 vtysh -c "show ip bgp"
+docker exec clab-nexthop-sonic-clos-leaf1 vtysh -c "show ip bgp"
 
 # Check routing table
-docker exec clab-sonic-clos-leaf1 vtysh -c "show ip route"
+docker exec clab-nexthop-sonic-clos-leaf1 vtysh -c "show ip route"
 
 # Check BGP neighbors detail
-docker exec clab-sonic-clos-spine1 vtysh -c "show ip bgp neighbors"
+docker exec clab-nexthop-sonic-clos-spine1 vtysh -c "show ip bgp neighbors"
 ```
 
 ### Interface Status
 ```bash
 # SONiC show commands
-docker exec clab-sonic-clos-spine1 show ip interface brief
-docker exec clab-sonic-clos-spine1 show interfaces status
+docker exec clab-nexthop-sonic-clos-spine1 show ip interface brief
+docker exec clab-nexthop-sonic-clos-spine1 show interfaces status
 
 # Linux ip commands
-docker exec clab-sonic-clos-spine1 ip addr show
-docker exec clab-sonic-clos-spine1 ip link show
+docker exec clab-nexthop-sonic-clos-spine1 ip addr show
+docker exec clab-nexthop-sonic-clos-spine1 ip link show
 ```
 
 ### Connectivity Tests
 ```bash
 # Host to host
-docker exec clab-sonic-clos-host1 ping -c 5 192.168.2.10
-docker exec clab-sonic-clos-host2 ping -c 5 192.168.1.10
+docker exec clab-nexthop-sonic-clos-host1 ping -c 5 192.168.2.10
+docker exec clab-nexthop-sonic-clos-host2 ping -c 5 192.168.1.10
 
 # Host to gateway
-docker exec clab-sonic-clos-host1 ping -c 3 192.168.1.1
-docker exec clab-sonic-clos-host2 ping -c 3 192.168.2.1
+docker exec clab-nexthop-sonic-clos-host1 ping -c 3 192.168.1.1
+docker exec clab-nexthop-sonic-clos-host2 ping -c 3 192.168.2.1
 
 # Traceroute
-docker exec clab-sonic-clos-host1 traceroute 192.168.2.10
+docker exec clab-nexthop-sonic-clos-host1 traceroute 192.168.2.10
 
 # Check host routes
-docker exec clab-sonic-clos-host1 ip route
-docker exec clab-sonic-clos-host2 ip route
+docker exec clab-nexthop-sonic-clos-host1 ip route
+docker exec clab-nexthop-sonic-clos-host2 ip route
 ```
 
 ## 📊 Traffic Monitoring
@@ -88,38 +90,38 @@ docker exec clab-sonic-clos-host2 ip route
 ### Packet Capture
 ```bash
 # Capture on leaf-to-host interface
-docker exec clab-sonic-clos-leaf1 tcpdump -i Ethernet8 -n
-docker exec clab-sonic-clos-leaf2 tcpdump -i Ethernet8 -n
+docker exec clab-nexthop-sonic-clos-leaf1 tcpdump -i Ethernet8 -n
+docker exec clab-nexthop-sonic-clos-leaf2 tcpdump -i Ethernet8 -n
 
 # Capture only ICMP
-docker exec clab-sonic-clos-leaf1 tcpdump -i Ethernet8 -n icmp
+docker exec clab-nexthop-sonic-clos-leaf1 tcpdump -i Ethernet8 -n icmp
 
 # Capture on spine-to-leaf interface
-docker exec clab-sonic-clos-spine1 tcpdump -i Ethernet0 -n
+docker exec clab-nexthop-sonic-clos-spine1 tcpdump -i Ethernet0 -n
 
 # Capture with packet details
-docker exec clab-sonic-clos-leaf2 tcpdump -i Ethernet8 -n -v
+docker exec clab-nexthop-sonic-clos-leaf2 tcpdump -i Ethernet8 -n -v
 
 # Capture specific number of packets
-docker exec clab-sonic-clos-leaf2 tcpdump -i Ethernet8 -n -c 20
+docker exec clab-nexthop-sonic-clos-leaf2 tcpdump -i Ethernet8 -n -c 20
 
 # Filter by host
-docker exec clab-sonic-clos-leaf2 tcpdump -i Ethernet8 -n host 192.168.2.10
+docker exec clab-nexthop-sonic-clos-leaf2 tcpdump -i Ethernet8 -n host 192.168.2.10
 
 # See full packet contents
-docker exec clab-sonic-clos-leaf2 tcpdump -i Ethernet8 -n -X
+docker exec clab-nexthop-sonic-clos-leaf2 tcpdump -i Ethernet8 -n -X
 ```
 
 ### Generate Traffic
 ```bash
 # Continuous ping
-docker exec clab-sonic-clos-host1 ping 192.168.2.10
+docker exec clab-nexthop-sonic-clos-host1 ping 192.168.2.10
 
 # Limited ping
-docker exec clab-sonic-clos-host1 ping -c 100 192.168.2.10
+docker exec clab-nexthop-sonic-clos-host1 ping -c 100 192.168.2.10
 
 # Ping with interval
-docker exec clab-sonic-clos-host1 ping -i 0.2 192.168.2.10
+docker exec clab-nexthop-sonic-clos-host1 ping -i 0.2 192.168.2.10
 ```
 
 ## 🔧 Configuration Commands
@@ -127,16 +129,16 @@ docker exec clab-sonic-clos-host1 ping -i 0.2 192.168.2.10
 ### Access SONiC Shell
 ```bash
 # Interactive bash
-docker exec -it clab-sonic-clos-spine1 bash
+docker exec -it clab-nexthop-sonic-clos-spine1 bash
 
 # Interactive vtysh (FRR)
-docker exec -it clab-sonic-clos-spine1 vtysh
+docker exec -it clab-nexthop-sonic-clos-spine1 vtysh
 ```
 
 ### BGP Configuration (Manual)
 ```bash
 # Enter vtysh and configure
-docker exec -it clab-sonic-clos-spine1 vtysh
+docker exec -it clab-nexthop-sonic-clos-spine1 vtysh
 
 # Inside vtysh:
 configure terminal
@@ -153,27 +155,27 @@ write memory
 ### Interface Configuration (Manual)
 ```bash
 # Configure interface
-docker exec clab-sonic-clos-spine1 config interface ip add Ethernet0 10.0.1.0/31
+docker exec clab-nexthop-sonic-clos-spine1 config interface ip add Ethernet0 10.0.1.0/31
 
 # Configure loopback
-docker exec clab-sonic-clos-spine1 config loopback add Loopback0
-docker exec clab-sonic-clos-spine1 config interface ip add Loopback0 1.1.1.1/32
+docker exec clab-nexthop-sonic-clos-spine1 config loopback add Loopback0
+docker exec clab-nexthop-sonic-clos-spine1 config interface ip add Loopback0 1.1.1.1/32
 
 # Bring interface up
-docker exec clab-sonic-clos-spine1 config interface startup Ethernet0
+docker exec clab-nexthop-sonic-clos-spine1 config interface startup Ethernet0
 ```
 
 ### FRR Service Management
 ```bash
 # Check FRR status
-docker exec clab-sonic-clos-spine1 service frr status
+docker exec clab-nexthop-sonic-clos-spine1 service frr status
 
 # Restart FRR
-docker exec clab-sonic-clos-spine1 service frr restart
+docker exec clab-nexthop-sonic-clos-spine1 service frr restart
 
 # Enable BGP daemon
-docker exec clab-sonic-clos-spine1 sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
-docker exec clab-sonic-clos-spine1 service frr restart
+docker exec clab-nexthop-sonic-clos-spine1 sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
+docker exec clab-nexthop-sonic-clos-spine1 service frr restart
 ```
 
 ## 🐛 Troubleshooting Commands
@@ -181,33 +183,33 @@ docker exec clab-sonic-clos-spine1 service frr restart
 ### Fix Host Routes
 ```bash
 # Remove mgmt network default route
-docker exec clab-sonic-clos-host1 ip route del default via 172.20.20.1 dev eth0
+docker exec clab-nexthop-sonic-clos-host1 ip route del default via 172.20.20.1 dev eth0
 
 # Add data network default route
-docker exec clab-sonic-clos-host1 ip route add default via 192.168.1.1 dev eth1
+docker exec clab-nexthop-sonic-clos-host1 ip route add default via 192.168.1.1 dev eth1
 ```
 
 ### Bring Up Interfaces
 ```bash
 # Bring up containerlab eth interfaces
-docker exec clab-sonic-clos-spine1 ip link set eth1 up
-docker exec clab-sonic-clos-spine1 ip link set eth2 up
+docker exec clab-nexthop-sonic-clos-spine1 ip link set eth1 up
+docker exec clab-nexthop-sonic-clos-spine1 ip link set eth2 up
 
 # Check interface status
-docker exec clab-sonic-clos-spine1 ip link show
+docker exec clab-nexthop-sonic-clos-spine1 ip link show
 ```
 
 ### Check Logs
 ```bash
 # Container logs
-docker logs clab-sonic-clos-spine1
+docker logs clab-nexthop-sonic-clos-spine1
 
 # FRR logs
-docker exec clab-sonic-clos-spine1 cat /var/log/frr/bgpd.log
-docker exec clab-sonic-clos-spine1 cat /var/log/frr/zebra.log
+docker exec clab-nexthop-sonic-clos-spine1 cat /var/log/frr/bgpd.log
+docker exec clab-nexthop-sonic-clos-spine1 cat /var/log/frr/zebra.log
 
 # System logs
-docker exec clab-sonic-clos-spine1 tail -f /var/log/syslog
+docker exec clab-nexthop-sonic-clos-spine1 tail -f /var/log/syslog
 ```
 
 ### Reset Configuration
@@ -223,9 +225,9 @@ cd scripts
 
 ## 📋 Container Names
 
-- **Spines:** `clab-sonic-clos-spine1`, `clab-sonic-clos-spine2`
-- **Leaves:** `clab-sonic-clos-leaf1`, `clab-sonic-clos-leaf2`
-- **Hosts:** `clab-sonic-clos-host1`, `clab-sonic-clos-host2`
+- **Spines:** `clab-nexthop-sonic-clos-spine1`, `clab-nexthop-sonic-clos-spine2`
+- **Leaves:** `clab-nexthop-sonic-clos-leaf1`, `clab-nexthop-sonic-clos-leaf2`
+- **Hosts:** `clab-nexthop-sonic-clos-host1`, `clab-nexthop-sonic-clos-host2`
 
 ## 🌐 IP Addresses
 
@@ -247,7 +249,7 @@ cd scripts
 
 ## 🔑 Key Files
 
-- **Topology:** `topology/sonic-clos.clab.yml`
+- **Topology:** `topology/nexthop-sonic-clos.clab.yml`
 - **Configs:** `configs/{spine1,spine2,leaf1,leaf2}/config_db.json`
 - **Scripts:**
   - `scripts/deploy_lab.sh` - Automated deployment
