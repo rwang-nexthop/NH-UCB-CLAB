@@ -49,96 +49,22 @@ bring_up_eth_interfaces() {
     sleep 2
 }
 
-# Function to configure interfaces on spine1
-configure_spine1_interfaces() {
-    local container="clab-nexthop-sonic-clos-spine1"
-    echo "Configuring interfaces on spine1..."
+# Generic function to configure interfaces on a device
+configure_interfaces() {
+    local container=$1
+    local device_name=$2
+    shift 2
+    local interfaces=("$@")
 
-    # Configure Ethernet0 (to leaf1)
-    docker exec $container config interface ip add Ethernet0 10.0.1.0/31
-    docker exec $container config interface startup Ethernet0
+    echo "Configuring interfaces on $device_name..."
 
-    # Configure Ethernet4 (to leaf2)
-    docker exec $container config interface ip add Ethernet4 10.0.2.0/31
-    docker exec $container config interface startup Ethernet4
+    for iface_config in "${interfaces[@]}"; do
+        IFS='|' read -r iface_name iface_ip <<< "$iface_config"
+        docker exec $container config interface ip add "$iface_name" "$iface_ip" 2>/dev/null || true
+        docker exec $container config interface startup "$iface_name" 2>/dev/null || true
+    done
 
-    # Configure Loopback0
-    docker exec $container config loopback add Loopback0
-    docker exec $container config interface ip add Loopback0 1.1.1.1/32
-    docker exec $container config interface startup Loopback0
-
-    echo "✓ Interfaces configured on spine1"
-}
-
-# Function to configure interfaces on spine2
-configure_spine2_interfaces() {
-    local container="clab-nexthop-sonic-clos-spine2"
-    echo "Configuring interfaces on spine2..."
-
-    # Configure Ethernet0 (to leaf1)
-    docker exec $container config interface ip add Ethernet0 10.0.1.2/31
-    docker exec $container config interface startup Ethernet0
-
-    # Configure Ethernet4 (to leaf2)
-    docker exec $container config interface ip add Ethernet4 10.0.2.2/31
-    docker exec $container config interface startup Ethernet4
-
-    # Configure Loopback0
-    docker exec $container config loopback add Loopback0
-    docker exec $container config interface ip add Loopback0 2.2.2.2/32
-    docker exec $container config interface startup Loopback0
-
-    echo "✓ Interfaces configured on spine2"
-}
-
-# Function to configure interfaces on leaf1
-configure_leaf1_interfaces() {
-    local container="clab-nexthop-sonic-clos-leaf1"
-    echo "Configuring interfaces on leaf1..."
-
-    # Configure Ethernet0 (to spine1)
-    docker exec $container config interface ip add Ethernet0 10.0.1.1/31
-    docker exec $container config interface startup Ethernet0
-
-    # Configure Ethernet4 (to spine2)
-    docker exec $container config interface ip add Ethernet4 10.0.1.3/31
-    docker exec $container config interface startup Ethernet4
-
-    # Configure Ethernet8 (to host1)
-    docker exec $container config interface ip add Ethernet8 192.168.1.1/24
-    docker exec $container config interface startup Ethernet8
-
-    # Configure Loopback0
-    docker exec $container config loopback add Loopback0
-    docker exec $container config interface ip add Loopback0 11.11.11.11/32
-    docker exec $container config interface startup Loopback0
-
-    echo "✓ Interfaces configured on leaf1"
-}
-
-# Function to configure interfaces on leaf2
-configure_leaf2_interfaces() {
-    local container="clab-nexthop-sonic-clos-leaf2"
-    echo "Configuring interfaces on leaf2..."
-
-    # Configure Ethernet0 (to spine1)
-    docker exec $container config interface ip add Ethernet0 10.0.2.1/31
-    docker exec $container config interface startup Ethernet0
-
-    # Configure Ethernet4 (to spine2)
-    docker exec $container config interface ip add Ethernet4 10.0.2.3/31
-    docker exec $container config interface startup Ethernet4
-
-    # Configure Ethernet8 (to host2)
-    docker exec $container config interface ip add Ethernet8 192.168.2.1/24
-    docker exec $container config interface startup Ethernet8
-
-    # Configure Loopback0
-    docker exec $container config loopback add Loopback0
-    docker exec $container config interface ip add Loopback0 22.22.22.22/32
-    docker exec $container config interface startup Loopback0
-
-    echo "✓ Interfaces configured on leaf2"
+    echo "✓ Interfaces configured on $device_name"
 }
 
 # Function to enable bgpd daemon
@@ -151,86 +77,48 @@ enable_bgpd() {
     sleep 3
 }
 
-# Function to configure BGP on spine
-configure_spine_bgp() {
+# Generic function to configure BGP
+configure_bgp() {
     local container_name=$1
     local asn=$2
-    local router_id=""
-    local neighbor1=""
-    local neighbor2=""
-
-    if [ "$container_name" == "clab-nexthop-sonic-clos-spine1" ]; then
-        router_id="1.1.1.1"
-        neighbor1="10.0.1.1"  # leaf1
-        neighbor2="10.0.2.1"  # leaf2
-    else
-        router_id="2.2.2.2"
-        neighbor1="10.0.1.3"  # leaf1
-        neighbor2="10.0.2.3"  # leaf2
-    fi
+    local router_id=$3
+    local network=$4
+    shift 4
+    local neighbors=("$@")
 
     echo "Configuring BGP on $container_name (AS $asn)..."
 
-    docker exec $container_name vtysh -c "configure terminal" \
-        -c "router bgp $asn" \
-        -c "bgp router-id $router_id" \
-        -c "bgp log-neighbor-changes" \
-        -c "no bgp ebgp-requires-policy" \
-        -c "neighbor $neighbor1 remote-as 65101" \
-        -c "neighbor $neighbor2 remote-as 65102" \
-        -c "address-family ipv4 unicast" \
-        -c "neighbor $neighbor1 activate" \
-        -c "neighbor $neighbor2 activate" \
-        -c "redistribute connected" \
-        -c "exit-address-family" \
-        -c "exit" 2>&1 | grep -v "Unknown command" || true
+    # Build vtysh commands
+    local cmds=("configure terminal" "router bgp $asn" "bgp router-id $router_id"
+                "bgp log-neighbor-changes" "no bgp ebgp-requires-policy")
 
-    # Save configuration (try both commands)
-    docker exec $container_name vtysh -c "write memory" 2>/dev/null || \
-    docker exec $container_name vtysh -c "write" 2>/dev/null || true
+    # Add neighbor definitions
+    for neighbor_config in "${neighbors[@]}"; do
+        IFS=',' read -r neighbor_ip neighbor_asn <<< "$neighbor_config"
+        cmds+=("neighbor $neighbor_ip remote-as $neighbor_asn")
+    done
 
-    echo "✓ Successfully configured $container_name"
-}
+    # Add address-family configuration
+    cmds+=("address-family ipv4 unicast")
+    [ -n "$network" ] && cmds+=("network $network")
 
-# Function to configure BGP on leaf
-configure_leaf_bgp() {
-    local container_name=$1
-    local asn=$2
-    local router_id=""
-    local neighbor1=""
-    local neighbor2=""
-    local network=""
+    # Activate neighbors
+    for neighbor_config in "${neighbors[@]}"; do
+        IFS=',' read -r neighbor_ip _ <<< "$neighbor_config"
+        cmds+=("neighbor $neighbor_ip activate")
+    done
 
-    if [ "$container_name" == "clab-nexthop-sonic-clos-leaf1" ]; then
-        router_id="11.11.11.11"
-        neighbor1="10.0.1.0"  # spine1
-        neighbor2="10.0.1.2"  # spine2
-        network="192.168.1.0/24"
-    else
-        router_id="22.22.22.22"
-        neighbor1="10.0.2.0"  # spine1
-        neighbor2="10.0.2.2"  # spine2
-        network="192.168.2.0/24"
-    fi
+    cmds+=("redistribute connected" "exit-address-family" "exit")
 
-    echo "Configuring BGP on $container_name (AS $asn)..."
+    # Execute all commands
+    local cmd_str=""
+    for cmd in "${cmds[@]}"; do
+        cmd_str="$cmd_str -c \"$cmd\""
+    done
 
-    docker exec $container_name vtysh -c "configure terminal" \
-        -c "router bgp $asn" \
-        -c "bgp router-id $router_id" \
-        -c "bgp log-neighbor-changes" \
-        -c "no bgp ebgp-requires-policy" \
-        -c "neighbor $neighbor1 remote-as 65000" \
-        -c "neighbor $neighbor2 remote-as 65000" \
-        -c "address-family ipv4 unicast" \
-        -c "network $network" \
-        -c "neighbor $neighbor1 activate" \
-        -c "neighbor $neighbor2 activate" \
-        -c "redistribute connected" \
-        -c "exit-address-family" \
-        -c "exit" 2>&1 | grep -v "Unknown command" || true
+    eval "docker exec $container_name vtysh $cmd_str" 2>&1 | grep -v "Unknown command" || true
 
-    # Save configuration (try both commands)
+    # Save configuration
     docker exec $container_name vtysh -c "write memory" 2>/dev/null || \
     docker exec $container_name vtysh -c "write" 2>/dev/null || true
 
@@ -258,10 +146,23 @@ echo ""
 # Step 1: Configure interfaces and IP addresses
 echo "Step 1: Configuring interfaces and IP addresses..."
 echo "---------------------------------------------------"
-configure_spine1_interfaces
-configure_spine2_interfaces
-configure_leaf1_interfaces
-configure_leaf2_interfaces
+
+# Spine1 interfaces
+configure_interfaces "clab-nexthop-sonic-clos-spine1" "spine1" \
+    "Ethernet0|10.0.1.0/31" "Ethernet4|10.0.2.0/31" "Loopback0|1.1.1.1/32"
+
+# Spine2 interfaces
+configure_interfaces "clab-nexthop-sonic-clos-spine2" "spine2" \
+    "Ethernet0|10.0.1.2/31" "Ethernet4|10.0.2.2/31" "Loopback0|2.2.2.2/32"
+
+# Leaf1 interfaces
+configure_interfaces "clab-nexthop-sonic-clos-leaf1" "leaf1" \
+    "Ethernet0|10.0.1.1/31" "Ethernet4|10.0.1.3/31" "Ethernet8|192.168.1.1/24" "Loopback0|11.11.11.11/32"
+
+# Leaf2 interfaces
+configure_interfaces "clab-nexthop-sonic-clos-leaf2" "leaf2" \
+    "Ethernet0|10.0.2.1/31" "Ethernet4|10.0.2.3/31" "Ethernet8|192.168.2.1/24" "Loopback0|22.22.22.22/32"
+
 echo ""
 sleep 5
 
@@ -286,15 +187,19 @@ echo ""
 # Step 4: Configure BGP on spines
 echo "Step 4: Configuring BGP on spine routers..."
 echo "--------------------------------------------"
-configure_spine_bgp "clab-nexthop-sonic-clos-spine1" "65000"
-configure_spine_bgp "clab-nexthop-sonic-clos-spine2" "65000"
+configure_bgp "clab-nexthop-sonic-clos-spine1" "65000" "1.1.1.1" "" \
+    "10.0.1.1,65101" "10.0.2.1,65102"
+configure_bgp "clab-nexthop-sonic-clos-spine2" "65000" "2.2.2.2" "" \
+    "10.0.1.3,65101" "10.0.2.3,65102"
 echo ""
 
 # Step 5: Configure BGP on leaves
 echo "Step 5: Configuring BGP on leaf routers..."
 echo "-------------------------------------------"
-configure_leaf_bgp "clab-nexthop-sonic-clos-leaf1" "65101"
-configure_leaf_bgp "clab-nexthop-sonic-clos-leaf2" "65102"
+configure_bgp "clab-nexthop-sonic-clos-leaf1" "65101" "11.11.11.11" "192.168.1.0/24" \
+    "10.0.1.0,65000" "10.0.1.2,65000"
+configure_bgp "clab-nexthop-sonic-clos-leaf2" "65102" "22.22.22.22" "192.168.2.0/24" \
+    "10.0.2.0,65000" "10.0.2.2,65000"
 echo ""
 
 # Step 6: Wait for BGP to establish

@@ -18,12 +18,12 @@ leaf2:
     username: 
     password: 
     platform: sonic-vs
-    hostname: 172.20.20.4
+    hostname: 172.20.20.7
 spine1:
     username: 
     password: 
     platform: sonic-vs
-    hostname: 172.20.20.7
+    hostname: 172.20.20.4
 spine2:
     username: 
     password: 

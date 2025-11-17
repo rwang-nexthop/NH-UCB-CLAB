@@ -16,8 +16,8 @@ all:
         clab-nexthop-sonic-clos-leaf1:
           ansible_host: 172.20.20.3
         clab-nexthop-sonic-clos-leaf2:
-          ansible_host: 172.20.20.4
-        clab-nexthop-sonic-clos-spine1:
           ansible_host: 172.20.20.7
+        clab-nexthop-sonic-clos-spine1:
+          ansible_host: 172.20.20.4
         clab-nexthop-sonic-clos-spine2:
           ansible_host: 172.20.20.5
