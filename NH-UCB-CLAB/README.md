@@ -177,7 +177,7 @@ Run the bgp verification script to pull BGP info from all containers:
 
 ```bash
 cd /scripts
-chmod +x
+chmod +x check_bgp.sh
 ./check_bgp.sh
 ```
 
@@ -211,25 +211,38 @@ docker exec -it clab-nexthop-sonic-clos-host1 ping 192.168.2.10
 ## 🗂️ Directory Structure
 
 ```
-NH-CLU-CLAB/
+NH-UCB-CLAB/
 ├── .devcontainer/
-│   └── devcontainer.json          # VS Code devcontainer config
+│   └── devcontainer.json                  # VS Code devcontainer config
 ├── configs/
 │   ├── spine1/
-│   │   └── config_db.json         # spine1 SONiC configuration
+│   │   └── config_db.json                 # spine1 SONiC configuration
 │   ├── spine2/
-│   │   └── config_db.json         # spine2 SONiC configuration
+│   │   └── config_db.json                 # spine2 SONiC configuration
 │   ├── leaf1/
-│   │   └── config_db.json         # leaf1 SONiC configuration
+│   │   └── config_db.json                 # leaf1 SONiC configuration
 │   └── leaf2/
-│       └── config_db.json         # leaf2 SONiC configuration
+│       └── config_db.json                 # leaf2 SONiC configuration
+├── configs-simple/
+│   ├── sonic1/
+│   │   └── config_db.json                 # sonic1 simple configuration
+│   └── sonic2/
+│       └── config_db.json                 # sonic2 simple configuration
 ├── scripts/
-│   ├── configure_bgp_redistribute.sh  # BGP configuration script
-|   ├── check_bgp.sh               # Pulls and displays all BGP configs in topology
-|   ├── cleanup_lab.sh             # Destroys and removes clab and docker env
+│   ├── configure_bgp_docker.sh            # BGP configuration script (assumes topology deployed)
+│   ├── check_bgp.sh                       # BGP diagnostic and verification script
+│   ├── cleanup_lab.sh                     # Destroys and removes clab and docker env
+│   └── README.md                          # Scripts documentation
+├── scripts-simple/
+│   └── configure_simple_bgp.sh            # Simple topology BGP configuration
 ├── topology/
-│   └── nexthop-sonic-clos.clab.yml        # Containerlab topology file
-└── README.md                      # This file
+│   ├── nexthop-sonic-clos.clab.yml        # CLOS topology file (2 spines, 2 leaves)
+│   └── clab-nexthop-sonic-clos/           # Deployed topology artifacts
+├── topology-simple/
+│   ├── simple-sonic.clab.yml              # Simple topology file
+│   └── clab-simple-sonic/                 # Deployed simple topology artifacts
+├── QUICK_REFERENCE.md                     # Quick command reference
+└── README.md                              # This file
 ```
 
 ## 🛠️ Troubleshooting
