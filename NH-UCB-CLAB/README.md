@@ -6,6 +6,8 @@ A containerlab-based SONiC CLOS topology with 2 spines and 2 leaves, featuring B
 
 📋 **See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for command reference**
 
+Google Doc Version here: https://docs.google.com/document/d/1SCcnSoAF6JtCMY0PrJWL_R5A_me8ofybs9JDHwwKM6A/edit?usp=sharing
+
 ## 🏗️ Topology Overview
 
 ```
@@ -58,13 +60,6 @@ A containerlab-based SONiC CLOS topology with 2 spines and 2 leaves, featuring B
 │                       │                  │                       │
 └───────────────────────┘                  └───────────────────────┘
 ```
-## Download SONiC image from the link below
-
-https://artprodcus3.artifacts.visualstudio.com/Af91412a5-a906-4990-9d7c-f697b81fc04d/be1b070f-be15-4154-aade-b1d3bfb17054/_apis/artifact/cGlwZWxpbmVhcnRpZmFjdDovL21zc29uaWMvcHJvamVjdElkL2JlMWIwNzBmLWJlMTUtNDE1NC1hYWRlLWIxZDNiZmIxNzA1NC9idWlsZElkLzk3ODQ2OS9hcnRpZmFjdE5hbWUvc29uaWMtYnVpbGRpbWFnZS52cw2/content?format=file&subpath=/target/docker-sonic-vs.gz
-
-OR enter site and download the docker-sonic-vs.gz image
-
-https://sonic.software/
 
 ## 📋 Network Details
 
@@ -103,24 +98,48 @@ https://sonic.software/
 ### Prerequisites
 
 1. **Docker Desktop** installed on macOS
+https://docs.docker.com/engine/install/ubuntu/ 
+Used for spinning up and maintaining the containers in the environment
+
 2. **VS Code** with Remote-Containers extension
-3. **Containerlab** (will be available in devcontainer)
+
+3. **Containerlab** (install as an extension in VSCode)
+https://containers.dev/ 
+The main extension that allows for Docker-outside-of-Docker (DooD) or Docker-inside-of-Docker (DioD)
+
 4. **DevContainer**
+https://containerlab.dev/ 
+https://github.com/srl-labs/containerlab/blob/main/utils/quick-setup.sh 
+This will be the main tool that will be used to setup the virtual network between the containers. The type of container that will be used is Docker-outside-of-docker (DooD) JSON file below:
 
-### Option 1: Using VS Code Devcontainer (Recommended for Mac)
+The devcontainer is already in the repo so make it hidden by placing a "." in front in order for the devcontainer extension to read the JSON file.
 
-1. Open the `NH-CLU-CLAB` folder in VS Code
-2. When prompted, click "Reopen in Container"
-3. Wait for the devcontainer to build and start
-4. Open a terminal in VS Code
+{
+    "image": "ghcr.io/srl-labs/containerlab/devcontainer-dood-slim:0.60.1",
+    "runArgs": [
+        "--network=host",
+        "--pid=host",
+        "--privileged"
+    ],
+    "mounts": [
+        "type=bind,src=/var/lib/docker,dst=/var/lib/docker",
+        "type=bind,src=/lib/modules,dst=/lib/modules"
+    ],
+    "workspaceFolder": "${localWorkspaceFolder}",
+    "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind,consistency=cached"
+}
 
-### Option 2: Local Installation
+### Using VS Code Devcontainer on Mac
 
-If you have containerlab installed locally:
-
-```bash
-cd ~/Python/Projects/NH-CLU-CLAB
-```
+1.Clone or download this repo 
+2.Add the "devcontainer" and "container lab" extensions on VSCode
+3.Open the `NH-CLU-CLAB` folder in VS Code
+4.Hide the "devcontainer" folder
+   - Rename and place a "." in front of the folder
+5. When prompted, click "Reopen in Container"
+   - If the window doesn't pop up, search for ">Dev Containers: Rebuild and Reopen"
+6. Wait for the devcontainer to build and start
+7. Open a new terminal in VS Code
 
 ## 📦 Deployment
 
@@ -135,6 +154,7 @@ clab deploy -t nexthop-sonic-clos.clab.yml
 
 ```bash
 cd ../scripts
+chmod +x configure_bgp_docker.sh
 ./configure_bgp_docker.sh
 ```
 
@@ -152,6 +172,14 @@ The configuration script will:
 ## 🔍 Verification
 
 ### Check BGP Status
+
+Run the bgp verification script to pull BGP info from all containers:
+
+```bash
+cd /scripts
+chmod +x
+./check_bgp.sh
+```
 
 Connect to a SONiC device:
 
@@ -196,7 +224,9 @@ NH-CLU-CLAB/
 │   └── leaf2/
 │       └── config_db.json         # leaf2 SONiC configuration
 ├── scripts/
-│   └── configure_bgp_redistribute.sh  # BGP configuration script
+│   ├── configure_bgp_redistribute.sh  # BGP configuration script
+|   ├── check_bgp.sh               # Pulls and displays all BGP configs in topology
+|   ├── cleanup_lab.sh             # Destroys and removes clab and docker env
 ├── topology/
 │   └── nexthop-sonic-clos.clab.yml        # Containerlab topology file
 └── README.md                      # This file

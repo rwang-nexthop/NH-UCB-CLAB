@@ -3,7 +3,7 @@ host1:
     username: 
     password: 
     platform: linux
-    hostname: 172.20.20.6
+    hostname: 172.20.20.3
 host2:
     username: 
     password: 
@@ -13,17 +13,17 @@ leaf1:
     username: 
     password: 
     platform: sonic-vs
-    hostname: 172.20.20.3
+    hostname: 172.20.20.7
 leaf2:
     username: 
     password: 
     platform: sonic-vs
-    hostname: 172.20.20.7
+    hostname: 172.20.20.4
 spine1:
     username: 
     password: 
     platform: sonic-vs
-    hostname: 172.20.20.4
+    hostname: 172.20.20.6
 spine2:
     username: 
     password: 

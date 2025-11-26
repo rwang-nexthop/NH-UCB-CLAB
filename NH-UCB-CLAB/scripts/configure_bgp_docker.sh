@@ -245,4 +245,3 @@ echo "  - Enter vtysh:         docker exec -it <container> vtysh"
 echo ""
 echo "Powered by Nexthop.AI"
 echo ""
-
