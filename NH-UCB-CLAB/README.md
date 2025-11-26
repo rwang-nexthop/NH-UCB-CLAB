@@ -131,14 +131,20 @@ The devcontainer is already in the repo so make it hidden by placing a "." in fr
 
 ### Using VS Code Devcontainer on Mac
 
-1.Clone or download this repo 
+1.Clone or download this repo
+
 2.Add the "devcontainer" and "container lab" extensions on VSCode
+
 3.Open the `NH-CLU-CLAB` folder in VS Code
+
 4.Hide the "devcontainer" folder
    - Rename and place a "." in front of the folder
+
 5. When prompted, click "Reopen in Container"
    - If the window doesn't pop up, search for ">Dev Containers: Rebuild and Reopen"
+
 6. Wait for the devcontainer to build and start
+
 7. Open a new terminal in VS Code
 
 ## 📦 Deployment
